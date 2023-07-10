@@ -3,7 +3,6 @@ import crypto from "crypto";
 
 type Base64 = string;
 type DBFileRecord = [string, Base64];
-type StoreDBRecord = [string, Buffer]
 type StoreDBMap = Map<string, Buffer>;
 
 class Store {
