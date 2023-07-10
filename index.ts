@@ -136,6 +136,6 @@ class Store {
 }
 
 const store = new Store();
-store.insterFile("video.mp4");
+const fileHash = store.insterFile("video.mp4");
 store.saveStoreDB()
-fs.writeFileSync('file.mp4',store.getFile("800a482c3235f5d2ee44423dc60adf5675821b05306742eb8faa0beb8fefe5e5"))
+fs.writeFileSync('file.mp4',store.getFile(fileHash))
