@@ -39,33 +39,33 @@ class Store {
   public insterFile(path: string): string {
     const fileBuffer = fs.readFileSync(path);
     const hash = this._hashFile(fileBuffer);
-    if (this._fileReoredAlreadyExists(hash)) {
+    if (this._fileIsAlreadyStored(hash)) {
       console.log(`File ${hash} already exist`)
       return hash;
     }
     const fileChunks = this._createChunks(fileBuffer);
-    const fileRecords: string[] = [];
+    const fileHashs: string[] = [];
     let totalDuplicateChunks: number = 0;
     fileChunks.forEach((chunk) => {
       const chunkHash = this._hashFile(chunk);
       if (this._isAlreadyStoredInDB(chunkHash)) {
         totalDuplicateChunks += 1;
-      fileRecords.push(chunkHash);
+      fileHashs.push(chunkHash);
         return;
       }
       this.storeDB.set(chunkHash, chunk);
-      fileRecords.push(chunkHash);
+      fileHashs.push(chunkHash);
     });
     console.log("File hash: ", hash);
     console.log("Total chunks: ", fileChunks.length);
-    console.log("Total unique chunks: ", fileRecords.length);
+    console.log("Total unique chunks: ", fileHashs.length);
     console.log("Total duplicate chunks: ", totalDuplicateChunks);
-    this._saveFileRecords(hash, fileRecords);
+    this._saveFileRecords(hash, fileHashs);
     console.log("File saved successfully");
     return hash;
   }
 
-  private _fileReoredAlreadyExists(hash: string): boolean {
+  private _fileIsAlreadyStored(hash: string): boolean {
     const filePath: string = this.storedFilesDir + hash + ".fsp";
     return fs.existsSync(filePath);
   }
