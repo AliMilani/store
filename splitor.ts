@@ -44,23 +44,23 @@ class Store {
       return hash;
     }
     const fileChunks = this._createChunks(fileBuffer);
-    const fileHashs: string[] = [];
+    const fileHashes: string[] = [];
     let totalDuplicateChunks: number = 0;
     fileChunks.forEach((chunk) => {
       const chunkHash = this._hashFile(chunk);
       if (this._isAlreadyStoredInDB(chunkHash)) {
         totalDuplicateChunks += 1;
-      fileHashs.push(chunkHash);
+      fileHashes.push(chunkHash);
         return;
       }
       this.storeDB.set(chunkHash, chunk);
-      fileHashs.push(chunkHash);
+      fileHashes.push(chunkHash);
     });
     console.log("File hash: ", hash);
     console.log("Total chunks: ", fileChunks.length);
-    console.log("Total unique chunks: ", fileHashs.length);
+    console.log("Total unique chunks: ", fileHashes.length);
     console.log("Total duplicate chunks: ", totalDuplicateChunks);
-    this._saveFileRecords(hash, fileHashs);
+    this._saveFileHashes(hash, fileHashes);
     console.log("File saved successfully");
     return hash;
   }
@@ -96,9 +96,9 @@ class Store {
     return fileBuffer.toString("base64");
   }
 
-  private _saveFileRecords(fileHash: string, fileRecords: string[]): void {
+  private _saveFileHashes(fileHash: string, fileHashes: string[]): void {
     const filePath: string = this.storedFilesDir + fileHash + ".fsp";
-    fs.writeFileSync(filePath, fileRecords.join("\n"))
+    fs.writeFileSync(filePath, fileHashes.join("\n"))
   }
 
   public saveStoreDB(): void {
@@ -117,8 +117,8 @@ class Store {
   }
 
   public getFile(hash: string): Buffer {
-    const fileRecords: string[] = this._loadFileRecords(hash) 
-    let fileBuffer: Buffer = Buffer.concat(fileRecords.map((hash: string): Buffer => {
+    const fileHashes: string[] = this._loadFileHashes(hash) 
+    let fileBuffer: Buffer = Buffer.concat(fileHashes.map((hash: string): Buffer => {
       const chunkBuffer = this.storeDB.get(hash)
       if (chunkBuffer instanceof Buffer)
         return chunkBuffer
@@ -128,7 +128,7 @@ class Store {
     return fileBuffer
   }
 
-  _loadFileRecords(fileHash: string): string[]{
+  _loadFileHashes(fileHash: string): string[]{
     const filePath: string = this.storedFilesDir + fileHash + ".fsp";
     const file = fs.readFileSync(filePath).toString()
     return file.split("\n")
